@@ -139,6 +139,32 @@ END
 
 Expanded Code:
 LDA DATA1 
+
+
+flowchart
+Pass 2
+
+Read next source card (copied by pass 1)
+
+Search MNT for match with operation code
+
+MACRO name found?
+    Y → MDTP <- MDT index from MNT entry
+         Set up argument list array
+         MDTP <- MDTP + 1
+         Get line from MDT
+         Substitute arguments from macro call
+
+         MEND pseudo-op?
+             Y → (Go back to read next source card)
+             N → Write expanded source
+                  (Loop back to MDTP <- MDTP + 1)
+
+    N → Write into expanded source card file
+
+END pseudo-op?
+    Y → Supply expanded source file to assembler processing
+    N → (Go back to read next source card)
 ADD DATA2 
 STA DATA1 
 END
