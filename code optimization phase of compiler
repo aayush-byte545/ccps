@@ -1,0 +1,96 @@
+# Basic Block Identification with User Input
+
+def find_basic_blocks(program):
+    leaders = set()
+    n = len(program)
+
+    # Rule 1: First statement is a leader
+    leaders.add(0)
+
+    # Rule 2 & 3: Target of branch and statement after branch
+    for i in range(n):
+        line = program[i]
+        tokens = line.split()
+
+        if "goto" in tokens:
+            target = int(tokens[-1]) - 1   # assuming line numbers start at 1
+            leaders.add(target)
+
+            if i + 1 < n:
+                leaders.add(i + 1)
+
+    leaders = sorted(list(leaders))
+
+    # Form Basic Blocks
+    basic_blocks = []
+    for i in range(len(leaders)):
+        start = leaders[i]
+        end = leaders[i + 1] if i + 1 < len(leaders) else n
+        basic_blocks.append(program[start:end])
+
+    return basic_blocks, leaders
+
+
+def build_cfg(basic_blocks, leaders):
+    cfg = {}
+
+    for i in range(len(basic_blocks)):
+        cfg[f"B{i+1}"] = []
+        last_stmt = basic_blocks[i][-1]
+        tokens = last_stmt.split()
+
+        if "goto" in tokens:
+            target = int(tokens[-1]) - 1
+            target_block = leaders.index(target)
+            cfg[f"B{i+1}"].append(f"B{target_block+1}")
+
+            # Conditional branch
+            if "if" in tokens and i + 1 < len(basic_blocks):
+                cfg[f"B{i+1}"].append(f"B{i+2}")
+        else:
+            if i + 1 < len(basic_blocks):
+                cfg[f"B{i+1}"].append(f"B{i+2}")
+
+    return cfg
+
+
+# ----------- USER INPUT SECTION ------------
+
+n = int(input("Enter number of statements: "))
+program = []
+
+print("Enter the statements (Example: 1: a = 5)")
+for i in range(n):
+    stmt = input()
+    program.append(stmt)
+
+print("\n----- BEFORE EXECUTION (Original Program) -----")
+for line in program:
+    print(line)
+
+blocks, leaders = find_basic_blocks(program)
+
+print("\n----- AFTER EXECUTION (Basic Blocks) -----")
+for i, block in enumerate(blocks):
+    print(f"\nBasic Block B{i+1}:")
+    for stmt in block:
+        print(stmt)
+
+cfg = build_cfg(blocks, leaders)
+
+print("\n----- CONTROL FLOW GRAPH -----")
+for block, edges in cfg.items():
+    print(f"{block} -> {edges}")
+
+
+output
+Enter number of statements: 6
+Enter the statements (Example: 1: a = 5)
+1: a = 5
+2: b = a + 3
+3: if b > 0 goto 6
+4: c = b * 2
+5: goto 7
+6: c = b + 10
+7: print c
+more automztically genreate
