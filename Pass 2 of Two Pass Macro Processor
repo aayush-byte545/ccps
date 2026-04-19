@@ -1,0 +1,145 @@
+#include <stdio.h>
+#include <string.h>
+
+#define MAX 100
+
+// MNT
+struct MNT {
+    char name[20];
+    int mdt_index;
+};
+
+// Global Tables
+struct MNT mnt[MAX];
+char mdt[MAX][100];
+char ala[MAX][20];
+
+int main() {
+    int mntc, mdtc, n;
+
+    // ---- INPUT MNT ----
+    printf("Enter number of entries in MNT:\n");
+    scanf("%d", &mntc);
+
+    printf("Enter MNT (name and MDT index):\n");
+    for (int i = 0; i < mntc; i++) {
+        scanf("%s %d", mnt[i].name, &mnt[i].mdt_index);
+    }
+
+    // ---- INPUT MDT ----
+    printf("Enter number of entries in MDT:\n");
+    scanf("%d", &mdtc);
+    getchar();
+
+    printf("Enter MDT entries:\n");
+    for (int i = 0; i < mdtc; i++) {
+        fgets(mdt[i], sizeof(mdt[i]), stdin);
+    }
+
+    // ---- INPUT INTERMEDIATE CODE ----
+    printf("Enter number of lines in intermediate code:\n");
+    scanf("%d", &n);
+    getchar();
+
+    char lines[MAX][100];
+    printf("Enter intermediate code:\n");
+    for (int i = 0; i < n; i++) {
+        fgets(lines[i], sizeof(lines[i]), stdin);
+    }
+
+    printf("\nExpanded Code:\n");
+
+    for (int i = 0; i < n; i++) {
+        char opcode[20], operands[50];
+
+        sscanf(lines[i], "%s %s", opcode, operands);
+
+        int found = -1;
+
+        // Search MNT
+        for (int j = 0; j < mntc; j++) {
+            if (strcmp(opcode, mnt[j].name) == 0) {
+                found = j;
+                break;
+            }
+        }
+
+        if (found != -1) {
+            // Macro call found
+
+            // Setup ALA
+            int ala_size = 0;
+            char temp[50];
+            strcpy(temp, operands);
+
+            char *token = strtok(temp, ",");
+            while (token != NULL) {
+                strcpy(ala[ala_size++], token);
+                token = strtok(NULL, ",");
+            }
+
+            int mdtp = mnt[found].mdt_index + 1;
+
+            // Expand macro
+            while (1) {
+                if (strstr(mdt[mdtp], "MEND") != NULL)
+                    break;
+
+                char line[100];
+                strcpy(line, mdt[mdtp]);
+
+                char result[100] = "";
+                char *tok = strtok(line, " \n");
+
+                while (tok != NULL) {
+                    if (tok[0] == '#') {
+                        int index = tok[1] - '0';
+                        strcat(result, ala[index]);
+                    } else {
+                        strcat(result, tok);
+                    }
+                    strcat(result, " ");
+                    tok = strtok(NULL, " \n");
+                }
+
+                printf("%s\n", result);
+                mdtp++;
+            }
+        }
+        else {
+            // Not a macro call → print as it is
+            printf("%s", lines[i]);
+        }
+    }
+
+    return 0;
+}
+
+
+output
+Enter number of entries in MNT:
+1
+Enter MNT (name and MDT index):
+INCR 0
+
+Enter number of entries in MDT:
+5
+Enter MDT entries:
+INCR &ARG1, &ARG2
+LDA #0
+ADD #1
+STA #0
+MEND
+
+Enter number of lines in intermediate code:
+2
+Enter intermediate code:
+INCR DATA1,DATA2
+END
+
+Expanded Code:
+LDA DATA1 
+ADD DATA2 
+STA DATA1 
+END
+
