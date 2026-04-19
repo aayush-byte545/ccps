@@ -1,0 +1,107 @@
+code = r"""#include <iostream>
+using namespace std;
+
+int main() {
+    int a, b, c;
+    cout << "Enter first number";
+    c = a + b;
+    cout << "Sum = ";
+    return 0;
+}"""
+
+keywords_list = ["int", "float", "return", "if", "else", "using", "namespace", "std", "include"]
+
+keywords = []
+identifiers = []
+numbers = []
+operators = []
+separators = []
+literals = []
+
+i = 0
+while i < len(code):
+    if code[i].isspace():
+        i += 1
+        continue
+
+    if code[i] == '#':
+        i += 1
+        continue
+
+    if code[i] == '"':
+        i += 1
+        literal = ""
+        while i < len(code) and code[i] != '"':
+            literal += code[i]
+            i += 1
+        i += 1 
+        if literal not in literals:
+            literals.append(literal)
+        continue
+
+    if code[i].isalpha() or code[i] == '_':
+        word = ""
+        while i < len(code) and (code[i].isalnum() or code[i] == '_'):
+            word += code[i]
+            i += 1
+        if word in keywords_list:
+            if word not in keywords:
+                keywords.append(word)
+        else:
+            if word not in identifiers:
+                identifiers.append(word)
+        continue
+
+    if code[i].isdigit():
+        num = ""
+        while i < len(code) and code[i].isdigit():
+            num += code[i]
+            i += 1
+        if num not in numbers:
+            numbers.append(num)
+        continue
+
+    if code[i] in '+-*/=<>':
+        if code[i] not in operators:
+            operators.append(code[i])
+        i += 1
+        continue
+
+    if code[i] in ';(){} ,':
+        if code[i] not in separators:
+            separators.append(code[i])
+        i += 1
+        continue
+
+    i += 1
+
+print("\nKeywords:")
+for s in keywords:
+    print(s)
+print("Count =", len(keywords))
+
+print("\nIdentifiers:")
+for s in identifiers:
+    print(s)
+print("Count =", len(identifiers))
+
+print("\nNumbers:")
+for s in numbers:
+    print(s)
+print("Count =", len(numbers))
+
+print("\nLiterals:")
+for s in literals:
+    print(f'"{s}"')
+print("Count =", len(literals))
+
+print("\nOperators:")
+for s in operators:
+    print(s)
+print("Count =", len(operators))
+
+print("\nSeparators:")
+for s in separators:
+    print(s)
+print("Count =", len(separators))
+
