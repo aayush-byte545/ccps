@@ -151,6 +151,44 @@ MDT (Macro Definition Table):
 MNT (Macro Name Table):
 0    INCR    0
 
+
+
+flowchart
+Pass 1
+
+MDTC <- 1
+MNTC <- 1
+
+Read next source card
+
+MACRO?
+    Y →
+        Read next source card
+        Enter macro name and current value of MDTC in MNT entry number MNTC
+        MNTC <- MNTC + 1
+
+        Prepare argument list array
+
+        Enter macro name card into MDT
+        MDTC <- MDTC + 1
+
+        Read next source card
+        Substitute index for arguments
+
+        Enter line into MDT
+        MDTC <- MDTC + 1
+
+        MEND pseudo-op?
+            N → (Repeat Read next source card → Substitute → Enter MDT)
+            Y → (Go back to Read next source card)
+
+    N →
+        Write copy of source card
+
+END pseudo-op?
+    Y → Go to Pass 2
+    N → Read next source card
+
 === Code Execution Successful ===
 
 ...Program finished with exit code 0
