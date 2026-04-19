@@ -1,0 +1,70 @@
+input_string = "read"
+ip = 0
+
+class Node:
+    def __init__(self, val):
+        self.val = val
+        self.left = None
+        self.middle = None
+        self.right = None
+
+def print_tree(root):
+    print(f"           {root.val}")
+    print("        /  |  \\")
+    l = root.left.val if root.left else "_"
+    m = root.middle.val if root.middle else "_"
+    r = root.right.val if root.right else "_"
+    print(f"       {l}   {m}   {r}")
+
+    if root.middle and (root.middle.left or root.middle.right):
+        print("           / \\")
+        ml = root.middle.left.val if root.middle.left else "_"
+        mr = root.middle.right.val if root.middle.right else "_"
+        print(f"          {ml}   {mr}")
+
+def show(title, root):
+    print("\n" + title)
+    print_tree(root)
+
+def match(ch):
+    global ip
+    if ip < len(input_string) and input_string[ip] == ch:
+        ip += 1
+        return ch
+    return None
+
+def parse():
+    root = Node("S")
+
+    root.left = Node("_")
+    root.middle = Node("X")
+    root.right = Node("_")
+
+    show("Initial Parse Tree Skeleton", root)
+
+    if match('r'):
+        root.left.val = "r"
+        show("After matching r", root)
+
+    root.middle.left = Node("_")
+    root.middle.right = Node("_")
+
+    if match('e'):
+        root.middle.left.val = "e"
+    if match('a'):
+        root.middle.right.val = "a"
+
+    show("After expanding X → e a", root)
+
+    if match('d'):
+        root.right.val = "d"
+        show("After matching d", root)
+
+    return root
+
+tree = parse()
+
+if ip == len(input_string):
+    show("FINAL PARSE TREE", tree)
+else:
+    print("Parsing Failed")
